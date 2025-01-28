@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body, html {
+    font-family: 'Poppins', sans-serif;
+    color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    position: relative; /* Allows absolutely positioned children */
+
+    background-color: #ffffff; /* Optionally set a background color */
+    text-align: center;
+
+
+
+}
+
+h1, h2 {
+    color: #ffffff;
+    text-align: left;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+
+.results {
+    font-family: 'Poppins', sans-serif;
+    color: black;
+    text-align: left;
+    margin-bottom: 1rem;
+    text-shadow: none;
+    }
+
+.results h1, h2 {
+    color: #000000;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 20px;
+    max-width: 90%;
+
+}
+
+
+
+form, .response {
+    background: linear-gradient(135deg, #181818, #202020);
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 450px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+form:hover, .response:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.image-container img {
+    max-width: 100%;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid #ccc;
+}
+
+.image-container img.fullsize {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    max-width: none;
+    width: auto;
+    height: auto;
+    z-index: 1000;
+}
+
+.image-container img:hover {
+    //transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+textarea, input[type="text"], input[type="submit"] {
+    width: 90%;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    border-radius: 5px;
+    border: 1px solid #333;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+    font-size: 1rem;
+}
+
+textarea#question {
+    text-align: left;
+
+}
+
+textarea:focus, input[type="text"]:focus {
+    border-color: #555;
+}
+
+input[type="submit"] {
+    background-color: #ff9800; /* Orange shade */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #e68900; /* Darker orange on hover */
+}
+
+.whitebackground {
+    text-align: left;
+    padding: 0.8rem;
+    background-color: white;
+    color: #2d2d2d; /* Semi-black color */
+    max-width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #ccc;
+}
+
+.whitebackground h2,h1 {
+    color: #2d2d2d;
+    text-shadow: none;
+}
+
+.whitebackground:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-display {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50px; /* Adjust size as needed */
+    height: auto;
+    margin: 10px;
+}
+
+.content-text {
+    text-align: left;
+    position: absolute;
+    top: 10px;
+    left: 70px; /* Positioned to the right of the image */
+    font-family: 'Arial', sans-serif; /* Set to Arial with sans-serif fallback */
+    font-weight: bold; /* Bold font weight */
+    font-size: 1.4rem; /* Font size */
+    color: #2d2d2d; /* Text color */
+    line-height: 1.1; /* Adjusted line height */
+}
+
+.quiz-container {
+    text-align: left;
+    position: absolute;
+
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    max-width: 100%;
+}
+
+.thumbnail-container {
+    width: 150px; /* Set a fixed width for the thumbnail container */
+    height: 150px; /* Set a fixed height for the thumbnail container */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; /* Centering the image within the container */
+    align-items: center; /* Centering the image within the container */
+    justify-content: center; /* Centering the image within the container */
+}
+
+.thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures image covers the entire container */
+    transition: transform 0.3s ease;
+}
+
+.thumbnail:hover {
+    transform: scale(1.05); /* Adjust scaling on hover as desired */
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
+}
+
+.modal-content {
+    display: block;
+    margin: auto;
+    max-width: 90%;
+    max-height: 90vh;
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    font-size: 40px;
+    font-weight: bold;
+    color: white;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.left-align {
+    text-align: left;
+}
+
+ #loader {
+    display: none; /* Make sure it's visible for demonstration purposes */
+    border: 10px solid rgba(243, 243, 243, 0.6); /* Lighter border color for a softer look */
+    border-top: 10px solid #ff9800; /* Initial color for the top border */
+    border-radius: 50%;
+    width: 60px; /* Increased width */
+    height: 60px; /* Increased height */
+    animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite, color-change 3s linear infinite; /* Added color-change animation */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Center the loader using transform */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for depth */
+  }
+
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg); /* Apply translate here too */
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg); /* Apply translate here too */
+    }
+  }
+
+  @keyframes color-change {
+    0% {
+      border-top-color: #ff9800;
+    }
+    33% {
+      border-top-color: #2196F3;
+    }
+    66% {
+      border-top-color: #4CAF50;
+    }
+    100% {
+      border-top-color: #ff9800; /* Reset to the initial color */
+    }
+  }
+
+  #copyButton {
+    display: inline-block;
+    background-color: #f0f0f0;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+
+
+
+.container2 {
+    width: 80%;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+h1, h2 {
+    color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #0056b3;
+    color: white;
+    font-weight: 500;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #e8f4ff;
+}
+
+.chart {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    margin-top: 20px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+.summary {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.summary h2 {
+    color: black;
+    box-shadow: none;
+}
