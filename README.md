@@ -48,12 +48,14 @@ The `Overall Score` will be calculated using the following weights:
 - Type of questions: 0.01
 
 ## Input Format
-The AI will expect the rating for each category to be provided by the user. The rating scale is from 1 (poor) to 10 (excellent).
+The format of the transcript provided is a well-structured record of an interview, capturing the dialogue between multiple speakers during an interaction, specifically a job interview for a technical role. It has a clear timestamp system that indicates the exact time at which each speaker contributes to the conversation, which aids in tracking the flow of dialogue over time.
 
 Example input:
 ```
-Rate the candidate's performance in the following areas from 1 (poor) to 10 (excellent) based on their responses in the interview transcript.
-Rate how directly and effectively the candidate's responses addressed the questions asked: 
+00:01:00 Speaker 1: Moving on to our next question, how do you handle project deadlines and pressure? 
+00:01:10 Candidate: I prioritize my tasks based on urgency and complexity, and communicate regularly with the team to ensure we're all aligned and can meet deadlines comfortably. 
+00:01:30 Speaker 2: That sounds like a solid strategy. How do you integrate feedback into your projects? 
+00:01:40 Candidate: I actively seek feedback from all stakeholders and use it to make iterative improvements to ensure the project always aligns with business goals.
 ```
 
 ## Configuration
