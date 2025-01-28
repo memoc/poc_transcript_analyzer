@@ -1,5 +1,10 @@
-# AI Interview Transcript Analyzer
-![Project Logo](./static/images/icon.png)
+<table>
+  <tr>
+    <td><img src="./static/images/icon.png" alt="Project Logo" style="width:100px;height:auto;"></td>
+    <td><h1>AI Interview Transcript Analyzer</h1></td>
+  </tr>
+</table>
+
 
 ## Overview
 This project aims to develop an AI specialized in analyzing text transcripts from interviews. The AI will output a JSON file named `data.json`, categorizing the candidate’s performance into various areas and scoring them accordingly.
