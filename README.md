@@ -1,4 +1,5 @@
 # AI Interview Transcript Analyzer
+![Project Logo](./static/images/icon.png)
 
 ## Overview
 This project aims to develop an AI specialized in analyzing text transcripts from interviews. The AI will output a JSON file named `data.json`, categorizing the candidate’s performance into various areas and scoring them accordingly.
@@ -79,3 +80,38 @@ Example output:
 }
 ```
 
+## Output Example
+Below is a example of a rated interview
+
+Candidate Interview Results: Candidate A
+========================================
+
+Summary
+-------
+
+Candidate C performed exceptionally well in the interview, demonstrating strong technical proficiency, problem-solving skills, and leadership potential. Their responses were highly relevant and detailed, supported by real-world examples. The candidate's enthusiasm and motivation for the role were evident, and they showed a good cultural fit with the organization. While their communication and interpersonal skills were strong, there is room for slight improvement in these areas. Overall, Candidate C is a highly qualified and promising candidate for the role.
+
+Overall Score: 8.91
+-------------------
+
+![Radar Chart](/static/images/radar_chart.png)
+
+Candidate Interview Results: Candidate A
+========================================
+
+| **Category**                     | **Score** | **Comments**                                                                                                                                                         |
+|----------------------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Relevance of Answers**         | 9         | The candidate provided highly relevant and direct answers to the questions asked, demonstrating a clear understanding of the topics discussed.                       |
+| **Depth of Knowledge**           | 9         | The candidate showcased a deep understanding of cloud architecture, Terraform, Azure, and leadership principles, providing detailed explanations and examples.       |
+| **Problem-solving Skills**       | 9         | The candidate effectively described their approach to solving complex problems, such as optimizing a legacy application and ensuring zero downtime during migration. |
+| **Experience and Examples**      | 9         | The candidate shared multiple relevant examples from their professional experience, including specific projects and challenges they addressed.                       |
+| **Technical Proficiency**        | 10        | The candidate demonstrated strong technical expertise in cloud platforms, Terraform, and Azure, as well as advanced problem-solving techniques.                      |
+| **Communication Skills**         | 8         | The candidate communicated their ideas clearly and concisely, with well-structured responses and appropriate technical terminology.                                  |
+| **Listening Skills**             | 8         | The candidate actively listened to the interviewers' questions and provided thoughtful, relevant answers without deviating from the topic.                           |
+| **Interpersonal Skills**         | 8         | The candidate displayed a collaborative and approachable demeanor, emphasizing teamwork and conflict resolution strategies.                                          |
+| **Enthusiasm and Motivation**    | 9         | The candidate expressed genuine enthusiasm for the role and demonstrated motivation to contribute to the team and organization.                                      |
+| **Cultural Fit**                 | 8         | The candidate's values and approach to teamwork and leadership align well with a collaborative and innovative work culture.                                          |
+| **Creativity and Innovation**    | 8         | The candidate showcased creativity in problem-solving, such as implementing a blue-green deployment strategy and optimizing costs in Azure.                          |
+| **Adaptability and Flexibility** | 8         | The candidate demonstrated adaptability by working across multiple cloud platforms and handling diverse challenges effectively.                                      |
+| **Leadership Potential**         | 9         | The candidate provided strong examples of team management, conflict resolution, and fostering a collaborative environment, indicating leadership potential.          |
+| **Type of questions**            | 8         | The candidate asked thoughtful questions about the company, team dynamics, and project timelines, showing genuine interest in the role.                              |
