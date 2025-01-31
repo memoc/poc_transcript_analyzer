@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <td><img src="static/images/icon.png" alt="Project Logo" style="width:100px;height:auto;"></td>
+    <td><img src="https://github.com/memoc/poc_transcript_analyzer/raw/main/static/images/icon.png" alt="Project Logo" style="width:100px;height:auto;"></td>
     <td><h1>AI Interview Transcript Analyzer</h1></td>
   </tr>
 </table>
