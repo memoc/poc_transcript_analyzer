@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <td><img src="https://dev.azure.com/HectorAguirre0132/d1f2f265-657d-45c4-a0ac-18aa33efdfcf/_apis/git/repositories/7f4cc0c7-e265-4b0a-b735-c8d77490626d/items?path=/static/images/icon.png&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=main&resolveLfs=true&%24format=octetStream&api-version=5.0" alt="Project Logo" style="width:100px;height:auto;"></td>
+    <td><img src="static/images/icon.png" alt="Project Logo" style="width:100px;height:auto;"></td>
     <td><h1>AI Interview Transcript Analyzer</h1></td>
   </tr>
 </table>
