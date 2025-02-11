@@ -8,6 +8,7 @@ import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 from math import pi
+import time
 
 
 
@@ -36,6 +37,62 @@ client = AzureOpenAI(
   api_key=os.getenv("AZURE_OPENAI_API_KEY"),
   api_version="2024-02-01"
 )
+
+@application.route('/transcript', methods=['GET', 'POST'] )
+def transcript():
+    is_valid_request = False
+
+    if request.method == 'POST':
+        if (request.form['question'] and request.files.get('json_file')):
+            is_valid_request = True
+
+        if (is_valid_request):
+            question = request.form['question']
+            json_file = request.files.get('json_file')
+            if json_file:
+                json_data = json_file.read().decode('utf-8')
+            transcript_results = remove_strings(transcript_analizer_with_questions(question, json_data))
+            print (transcript_results)
+            # Open the file in write mode ('w')
+            with open('data.json', 'w') as f:
+                # Write the string to the file
+                f.write(transcript_results)
+
+            # Specify the path to your JSON file
+            json_file_path = 'data.json'
+
+            # Read data from JSON
+            input_metrics = read_json(json_file_path)
+            #print(input_metrics)
+
+            # Transform data to required format
+            transformed_metrics = transform_data(input_metrics)
+
+            json_data = json.loads(transcript_results)
+            # print(json_data)
+            # Plot radar chart
+            filename = plot_radar_chart(transformed_metrics)
+
+            response = {
+                "json_data": json_data,
+                "file_url": filename
+            }
+
+            return jsonify(response )
+
+        else:
+            return "error: incorrect parameters given, expected a JSON file and text transcript"
+
+
+
+
+
+
+
+
+
+    else:
+        return "This endpoint receives POST requests"
 
 
 @application.route('/', methods=['GET', 'POST'])
@@ -68,8 +125,8 @@ def root():
         json_data = json.loads(transcript_results)
         print(json_data)
         # Plot radar chart
-        plot_radar_chart(transformed_metrics)
-        return render_template("index.html", data=json_data, image='images/radar_chart.png', question=question)
+        filename = plot_radar_chart(transformed_metrics)
+        return render_template("index.html", data=json_data, image=filename, question=question)
 
 
     return render_template("index.html")
@@ -124,9 +181,17 @@ def plot_radar_chart(metrics):
 
     plt.title('Candidate Interview - Performance Radar Chart', size=18, color='black', y=1.1)
 
+    # Get current Unix timestamp
+    timestamp = int(time.time())
+
+    # Convert to string and take the last 8 digits
+    file_timestamp = str(timestamp)[-8:]
+
+    filename = 'static/images/radar_chart' + file_timestamp + '.png'
     # Save the plot as an image file
-    plt.savefig('static/images/radar_chart.png')
+    plt.savefig(filename)
     plt.close()
+    return filename
 
 
 
@@ -186,6 +251,19 @@ def transcript_analizer(message):
   """},
         {"role": "user", "content": """Rate the candidate's performance in the following areas from 1 (poor) to 10 (excellent) based on their responses in the interview transcript.
 Rate how directly and effectively the candidate's responses addressed the questions asked : """ + message}
+
+    ]
+    return query_gpt(message_text, temperature=0, max_tokens=4000)
+
+
+def transcript_analizer_with_questions(message, json_data ):
+    """Prompt to analyze  ."""
+    message_text = [
+        {"role": "system", "content": """You are an AI specialized in analyzing text transcripts from interviews. Your output will be a JSON file named : data.json, with following categories: [Relevance of Answers, Depth of Knowledge, Problem-solving Skills, Experience and Examples, Technical Proficiency, Communication Skills, Listening Skills, Interpersonal Skills, Enthusiasm and Motivation, Cultural Fit, Creativity and Innovation, Adaptability and Flexibility, Leadership Potential, Type of questions
+] and include [Score] and [Comments] for each category and a field [Overall Score] and [Summary], for the [Overall Score] use this weighting criteria : [[Relevance of Answers]:0.1,	[Depth of Knowledge]:0.12,	[Problem-solving Skills]:0.12,	[Experience and Examples]:0.1,	[Technical Proficiency]:0.15,	[Communication Skills]:0.06,	[Listening Skills]:0.05,	[Interpersonal Skills]:0.05,	[Enthusiasm and Motivation]:0.05,	[Cultural Fit]:0.06,	[Creativity and Innovation]:0.05,	[Adaptability and Flexibility]:0.03,	[Leadership Potential]:0.05,	[Type of questions]:0.01 ]
+  """},
+        {"role": "user", "content": """Rate the candidate's performance in the following areas from 1 (poor) to 10 (excellent) based on their responses in the interview transcript.
+Rate how directly and effectively the candidate's responses addressed the questions asked : """ + message + """ use this JSON that contains the list of questions to be asked """ + json_data}
 
     ]
     return query_gpt(message_text, temperature=0, max_tokens=4000)
