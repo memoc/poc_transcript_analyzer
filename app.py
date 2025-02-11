@@ -1,4 +1,11 @@
-import os, re, time, requests, json
+import time
+from math import pi
+import matplotlib.pyplot as plt
+import os
+import re
+import time
+import requests
+import json
 from flask import Flask, request, render_template, jsonify
 from openai import OpenAI, AzureOpenAI
 from dotenv import load_dotenv
@@ -6,16 +13,13 @@ from bs4 import BeautifulSoup
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
-import matplotlib.pyplot as plt
-from math import pi
-import time
-
 
 
 # Regular expression to determine if valid URL
 URL_REGEX = re.compile(
     r'^(?:http|ftp)s?://'  # http:// or https://
-    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
+    # domain...
+    r'(?:(?:[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
     r'localhost|'  # localhost...
     r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
     r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
@@ -24,7 +28,7 @@ URL_REGEX = re.compile(
 
 # Initialize Flask app
 load_dotenv()  # take environment variables from .env.
-application = Flask(__name__)
+app = Flask(__name__)
 
 # Load environment variables
 os.environ["API_KEY"] = os.getenv("API_KEY")
@@ -33,13 +37,13 @@ model = os.getenv("GPT_MODEL")
 # client = OpenAI(api_key=os.getenv("API_KEY"))
 
 client = AzureOpenAI(
-  azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-  api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-  api_version="2024-02-01"
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    api_version="2024-02-01"
 )
 
 
-@application.route('/transcript', methods=['POST'])
+@app.route('/transcript', methods=['POST'])
 def transcript():
     # Check if 'question' and 'json_file' are present in the request
     question = request.form.get('question')
@@ -51,7 +55,8 @@ def transcript():
             json_data = json_file.read().decode('utf-8')
 
             # Process transcripts
-            transcript_results = remove_strings(transcript_analyzer_with_questions(question, json_data))
+            transcript_results = remove_strings(
+                transcript_analyzer_with_questions(question, json_data))
             print(transcript_results)
 
             # Write results to file
@@ -84,23 +89,23 @@ def transcript():
 
 
 # This endpoint receives only POST requests
-@application.route('/transcript', methods=['GET'])
+@app.route('/transcript', methods=['GET'])
 def transcript_get():
     return "This endpoint receives POST requests"
 
 
-@application.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def root():
     print("Route / is accessed.")
     start_time = time.time()
 
-
     if request.method == 'POST':
         question = request.form['question']
-        question, url_link = check_for_url(question) # Check if question is a URL if it is then get URL data, and return original URL
-        #print(question)
+        # Check if question is a URL if it is then get URL data, and return original URL
+        question, url_link = check_for_url(question)
+        # print(question)
         transcript_results = remove_strings(transcript_analizer(question))
-        #print(transcript_results)
+        # print(transcript_results)
         # Open the file in write mode ('w')
         with open('data.json', 'w') as f:
             # Write the string to the file
@@ -122,15 +127,14 @@ def root():
         filename = plot_radar_chart(transformed_metrics)
         return render_template("index.html", data=json_data, image=filename, question=question)
 
-
     return render_template("index.html")
-
 
 
 def read_json(file_path):
     with open(file_path, 'r') as file:
         data = json.load(file)
     return data
+
 
 def transform_data(input_data):
     metrics = []
@@ -142,6 +146,7 @@ def transform_data(input_data):
             }
             metrics.append(metric)
     return metrics
+
 
 def plot_radar_chart(metrics):
     # Extract categories and values
@@ -164,7 +169,8 @@ def plot_radar_chart(metrics):
 
     # Draw y-labels
     ax.set_rlabel_position(0)
-    plt.yticks([2, 4, 6, 8, 10], ["2", "4", "6", "8", "10"], color="grey", size=7)
+    plt.yticks([2, 4, 6, 8, 10], ["2", "4", "6",
+               "8", "10"], color="grey", size=7)
     plt.ylim(0, 10)
 
     # Plot data
@@ -173,7 +179,8 @@ def plot_radar_chart(metrics):
     # Fill area
     ax.fill(angles, values, 'b', alpha=0.1)
 
-    plt.title('Candidate Interview - Performance Radar Chart', size=18, color='black', y=1.1)
+    plt.title('Candidate Interview - Performance Radar Chart',
+              size=18, color='black', y=1.1)
 
     # Get current Unix timestamp
     timestamp = int(time.time())
@@ -188,10 +195,6 @@ def plot_radar_chart(metrics):
     return filename
 
 
-
-
-
-
 def check_for_url(data):
     if is_valid_url(data):
         print(f'✅ This a valid URL {data} obtaining data..')
@@ -203,14 +206,16 @@ def check_for_url(data):
             question = soup.get_text(strip=True)
             data = f'{question[:100000]}'
             print("✅ Obtained information from URL")
-            return data , url_link
+            return data, url_link
         except requests.RequestException as e:
             return f'Error fetching the URL: {str(e)}'
     else:
         return data, None
 
+
 def is_valid_url(url):
     return re.match(URL_REGEX, url) is not None
+
 
 def remove_strings(text):
     """Remove specific markup strings from the given text."""
@@ -218,6 +223,7 @@ def remove_strings(text):
     pattern = r'```json|```plantuml|```html|```'
     cleaned_text = re.sub(pattern, '', text, flags=re.IGNORECASE)
     return cleaned_text
+
 
 def query_gpt(message_text, temperature=0.8, max_tokens=800):
     """Query GPT-3 with the given message text and return the response."""
@@ -235,8 +241,6 @@ def query_gpt(message_text, temperature=0.8, max_tokens=800):
     return response_text
 
 
-
-
 def transcript_analizer(message):
     """Prompt to analyze  ."""
     message_text = [
@@ -250,7 +254,7 @@ Rate how directly and effectively the candidate's responses addressed the questi
     return query_gpt(message_text, temperature=0, max_tokens=4000)
 
 
-def transcript_analyzer_with_questions(message, json_data ):
+def transcript_analyzer_with_questions(message, json_data):
     """Prompt to analyze  ."""
     message_text = [
         {"role": "system", "content": """You are an AI specialized in analyzing text transcripts from interviews. Your output will be a JSON file named : data.json, with following categories: [Relevance of Answers, Depth of Knowledge, Problem-solving Skills, Experience and Examples, Technical Proficiency, Communication Skills, Listening Skills, Interpersonal Skills, Enthusiasm and Motivation, Cultural Fit, Creativity and Innovation, Adaptability and Flexibility, Leadership Potential, Type of questions
@@ -263,6 +267,5 @@ Rate how directly and effectively the candidate's responses addressed the questi
     return query_gpt(message_text, temperature=0, max_tokens=4000)
 
 
-
 if __name__ == '__main__':
-    application.run(debug=True, port=5001)
+    app.run(debug=True, port=5001)
