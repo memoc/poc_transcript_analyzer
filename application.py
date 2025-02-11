@@ -38,61 +38,55 @@ client = AzureOpenAI(
   api_version="2024-02-01"
 )
 
-@application.route('/transcript', methods=['GET', 'POST'] )
+
+@application.route('/transcript', methods=['POST'])
 def transcript():
-    is_valid_request = False
+    # Check if 'question' and 'json_file' are present in the request
+    question = request.form.get('question')
+    json_file = request.files.get('json_file')
 
-    if request.method == 'POST':
-        if (request.form['question'] and request.files.get('json_file')):
-            is_valid_request = True
+    if question and json_file:
+        try:
+            # Read and decode JSON data
+            json_data = json_file.read().decode('utf-8')
 
-        if (is_valid_request):
-            question = request.form['question']
-            json_file = request.files.get('json_file')
-            if json_file:
-                json_data = json_file.read().decode('utf-8')
-            transcript_results = remove_strings(transcript_analizer_with_questions(question, json_data))
-            print (transcript_results)
-            # Open the file in write mode ('w')
+            # Process transcripts
+            transcript_results = remove_strings(transcript_analyzer_with_questions(question, json_data))
+            print(transcript_results)
+
+            # Write results to file
             with open('data.json', 'w') as f:
-                # Write the string to the file
                 f.write(transcript_results)
 
-            # Specify the path to your JSON file
-            json_file_path = 'data.json'
+            # Read data from JSON file
+            input_metrics = read_json('data.json')
 
-            # Read data from JSON
-            input_metrics = read_json(json_file_path)
-            #print(input_metrics)
-
-            # Transform data to required format
+            # Transform data for plotting
             transformed_metrics = transform_data(input_metrics)
 
-            json_data = json.loads(transcript_results)
-            # print(json_data)
-            # Plot radar chart
+            # Generate radar chart
             filename = plot_radar_chart(transformed_metrics)
 
+            # Formulate response
             response = {
-                "json_data": json_data,
+                "json_data": json.loads(transcript_results),
                 "file_url": filename
             }
 
-            return jsonify(response )
+            # Return JSON response
+            return jsonify(response)
 
-        else:
-            return "error: incorrect parameters given, expected a JSON file and text transcript"
+        except Exception as e:
+            return f"Error processing request: {str(e)}", 500
 
-
-
-
-
-
+    # If necessary parameters are missing, return an error message
+    return "Error: 'question' and 'json_file' are required.", 400
 
 
-
-    else:
-        return "This endpoint receives POST requests"
+# This endpoint receives only POST requests
+@application.route('/transcript', methods=['GET'])
+def transcript_get():
+    return "This endpoint receives POST requests"
 
 
 @application.route('/', methods=['GET', 'POST'])
@@ -256,7 +250,7 @@ Rate how directly and effectively the candidate's responses addressed the questi
     return query_gpt(message_text, temperature=0, max_tokens=4000)
 
 
-def transcript_analizer_with_questions(message, json_data ):
+def transcript_analyzer_with_questions(message, json_data ):
     """Prompt to analyze  ."""
     message_text = [
         {"role": "system", "content": """You are an AI specialized in analyzing text transcripts from interviews. Your output will be a JSON file named : data.json, with following categories: [Relevance of Answers, Depth of Knowledge, Problem-solving Skills, Experience and Examples, Technical Proficiency, Communication Skills, Listening Skills, Interpersonal Skills, Enthusiasm and Motivation, Cultural Fit, Creativity and Innovation, Adaptability and Flexibility, Leadership Potential, Type of questions
