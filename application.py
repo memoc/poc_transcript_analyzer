@@ -12,7 +12,7 @@ import time
 
 
 
-# Regular Expresion to determine if valid URL
+# Regular expression to determine if valid URL
 URL_REGEX = re.compile(
     r'^(?:http|ftp)s?://'  # http:// or https://
     r'(?:(?:[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
