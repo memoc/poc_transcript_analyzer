@@ -1,82 +1,88 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta name="referrer" content="no-referrer">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet"/>
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
     <link href="{{ url_for('static', filename='images/icon.png') }}" rel="icon" type="image/png">
     <title>Transcript Analyzer</title>
 
 </head>
+
 <body>
-<img alt="Notes Icon" class="image-display" src="{{ url_for('static', filename='images/icon.png') }}">
-<div class="content-text">Transcript<br>Analyzer</div>
-<br>
-<div class="container">
-    <form id="processForm" method="post">
+    <img alt="Notes Icon" class="image-display" src="{{ url_for('static', filename='images/icon.png') }}">
+    <div class="content-text">Transcript<br>Analyzer</div>
+    <br>
+    <div class="container">
+        <form id="processForm" method="post">
 
-        <h3>Provide transcript to analyze</h3>
-        <textarea id="question" name="question" rows="10">{{ question }}</textarea><br><br>
-        <input onclick="submitData()" type="submit" value="Analyze">
-    </form>
+            <h3>Provide transcript to analyze</h3>
+            <textarea id="question" name="question" rows="10">{{ question }}</textarea><br><br>
+            <input onclick="submitData()" type="submit" value="Analyze">
+        </form>
 
-    <div id="loader"></div>
-    <script>
-        function submitData() {
-        // Display the loader
-         document.getElementById('loader').style.display = 'block';
-        }
-    </script>
+        <div id="loader"></div>
+        <script>
+            function submitData() {
+                // Display the loader
+                document.getElementById('loader').style.display = 'block';
+            }
+        </script>
 
 
-    {% if data %}
+        {% if data %}
 
-    <div class="results">
-        <h1>Candidate Interview Results: Candidate A</h1>
-        <div class="summary">
-            <h2 class="results">Summary</h2>
-            <p id="summary-text">
-                {{ data['Summary'] }}
-            </p>
+        <div class="results">
+            <h1>Candidate Interview Results: Candidate A</h1>
+            <div class="summary">
+                <h2 class="results">Summary</h2>
+                <p id="summary-text">
+                    {{ data['Summary'] }}
+                </p>
+            </div>
+            <h2 class="results">Overall Score: <span id="overall-score">{{ data['Overall Score'] }}</span></h2>
+            <img src="{{ image }}" alt="Radar Chart" class="chart">
+
+            <div class="results">
+                <h1>Candidate Interview Results: Candidate A</h1>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Score</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category, details in data.items() %}
+                        {% if category != 'Overall Score' and category != 'Summary' %}
+                        <tr>
+                            <td>{{ category }}</td>
+                            <td>{{ details['Score'] }}</td>
+                            <td>{{ details['Comments'] }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+            </div>
+
+
+
+
         </div>
-                <h2 class="results">Overall Score: <span id="overall-score">{{ data['Overall Score'] }}</span></h2>
-        <img src="{{ image }}" alt="Radar Chart" class="chart">
 
-<div class="results">
-    <h1>Candidate Interview Results: Candidate A</h1>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Score</th>
-                <th>Comments</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for category, details in data.items() %}
-                {% if category != 'Overall Score' and category != 'Summary' %}
-                <tr>
-                    <td>{{ category }}</td>
-                    <td>{{ details['Score'] }}</td>
-                    <td>{{ details['Comments'] }}</td>
-                </tr>
-                {% endif %}
-            {% endfor %}
-        </tbody>
-    </table>
-
-
-</div>
-
-
-
+        {% endif %}
 
     </div>
-
-    {% endif %}
-
-</div>
 </body>
+<footer style="text-align: center; margin-top: 20px; padding: 10px; background-color: #f1f1f1;">
+    <p>Transcript Analyzer - Version 1.0.0</p>
+</footer>
+
 </html>
