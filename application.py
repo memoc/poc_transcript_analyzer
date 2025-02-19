@@ -54,6 +54,12 @@ def transcript():
             transcript_results = remove_strings(transcript_analyzer_with_questions(question, json_data))
             print(transcript_results)
 
+            # Rate questions
+            question_results = remove_strings(transcript_list_questions_and_grade(question, json_data))
+            # print("QUESTION RESULTS:")
+            # print(question_results)
+
+
             # Write results to file
             with open('data.json', 'w') as f:
                 f.write(transcript_results)
@@ -70,7 +76,8 @@ def transcript():
             # Formulate response
             response = {
                 "json_data": json.loads(transcript_results),
-                "file_url": filename
+                "file_url": filename,
+                "question_results" : json.loads(question_results)
             }
 
             # Return JSON response
@@ -261,6 +268,32 @@ Rate how directly and effectively the candidate's responses addressed the questi
 
     ]
     return query_gpt(message_text, temperature=0, max_tokens=4000)
+
+
+def transcript_list_questions_and_grade(message, json_data ):
+    """Prompt to analyze  ."""
+    message_text = [
+        {
+            "role": "system",
+            "content": """
+            You are an AI specialized in analyzing text transcripts from interviews. Your task is to generate a JSON file named "questions.json" with entries categorized as follows: [Question, Comments, Score].
+            """
+        },
+        {
+            "role": "user",
+            "content": f"""
+            From the given interview transcript, list all the questions asked. For each question, provide a rating from 1 (poor) to 10 (excellent) based on its quality. Additionally, include comments explaining the rating for each question. Use this JSON format for your output.
+
+            Transcript: {message}
+            JSON format: {json_data}
+            """
+        }
+    ]
+    return query_gpt(message_text, temperature=0, max_tokens=4000)
+
+
+
+
 
 
 
