@@ -273,21 +273,11 @@ Rate how directly and effectively the candidate's responses addressed the questi
 def transcript_list_questions_and_grade(message, json_data ):
     """Prompt to analyze  ."""
     message_text = [
-        {
-            "role": "system",
-            "content": """
-            You are an AI specialized in analyzing text transcripts from interviews. Your task is to generate a JSON file named "questions.json" with entries categorized as follows: [Question, Comments, Score].
-            """
-        },
-        {
-            "role": "user",
-            "content": f"""
-            From the given interview transcript, list all the questions asked. For each question, provide a rating from 1 (poor) to 10 (excellent) based on its quality. Additionally, include comments explaining the rating for each question. Use this JSON format for your output.
+        {"role": "system",
+         "content": """You are an AI specialized in analyzing text transcripts from interviews. Your output will be a JSON file named : questions.json, with following categories: [Question, Comment, Score] """},
+        {"role": "user",
+         "content": """List all questions asked on this interview transcript and rate 'from 1 (poor) to 10 (excellent)' and comment each question based on this interview transcript : """ + message + """ use this JSON that contains the list of questions asked and the proposed answer, you should only rate answers from the interview transcript. """ + json_data}
 
-            Transcript: {message}
-            JSON format: {json_data}
-            """
-        }
     ]
     return query_gpt(message_text, temperature=0, max_tokens=4000)
 
