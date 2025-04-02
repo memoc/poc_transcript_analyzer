@@ -88,7 +88,7 @@ Example output:
 ```
 
 ## Output Example
-Below is a example of a rated interview
+Below is an example of a rated interview
 
 Candidate Interview Results: Candidate A
 ========================================
