@@ -11,13 +11,7 @@ import matplotlib.pyplot as plt
 from math import pi
 import io
 import uuid
-from azure.storage.blob import (
-    BlobServiceClient,
-    BlobBlock,
-    BlobClient,
-    StandardBlobTier,
-    AzureNamedKeyCredential,
-)
+from azure.storage.blob import BlobServiceClient
 
 
 # Regular expression to determine if valid URL
