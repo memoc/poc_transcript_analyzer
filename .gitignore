@@ -130,5 +130,5 @@ dmypy.json
 
 *.vscode*
 *.zip
-
+*.mp4
 radar*.png
