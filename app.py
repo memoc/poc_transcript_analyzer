@@ -56,9 +56,9 @@ def get_blob_service_client_account()-> BlobServiceClient:
 
 def upload_blob_stream(blob_service_client: BlobServiceClient, container_name: str, blob_stream: io.BytesIO, image_name: str):
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=image_name)
-    blob_client.upload_blob(blob_stream, blob_type="BlockBlob")
+    response = blob_client.upload_blob(blob_stream, blob_type="BlockBlob")
 
-    return blob_client
+    return response
 
 @app.route("/transcript", methods=["POST"])
 def transcript():
@@ -96,18 +96,19 @@ def transcript():
             transformed_metrics = transform_data(input_metrics)
 
             # Generate radar chart
-            image_stream = plot_radar_chart(transformed_metrics)
+            image_bytes = plot_radar_chart(transformed_metrics)
+            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
 
             # Upload file to Azure Blob Storage 
             image_name = str(uuid.uuid4())
             blob_service_client = get_blob_service_client_account()
-            upload_blob_stream(blob_service_client, STORAGE_ACCOUNT_CONTAINER, image_stream, f"{image_name}.png")
+            blob_response = upload_blob_stream(blob_service_client, STORAGE_ACCOUNT_CONTAINER, io.BytesIO(image_bytes), f"{image_name}.png")
 
             # Formulate response
             response = {
                 "json_data": json.loads(transcript_results),
-                # "chart_bytes": image_stream,
-                "chart_url": f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{STORAGE_ACCOUNT_CONTAINER}/{image_name}.png",
+                "chart_bytes": image_base64,
+                "chart_url": blob_response,
                 "question_results": json.loads(question_results),
             }
 
@@ -289,17 +290,11 @@ def plot_radar_chart(metrics):
         "Candidate Interview - Performance Radar Chart", size=18, color="black", y=1.1
     )
 
-    # Get current Unix timestamp
-    timestamp = int(time.time())
-
-    # Convert to string and take the last 8 digits
-    file_timestamp = str(timestamp)[-8:]
-
-    # Save the plot as an image file
+    # Save the plot as PNG bytes
     image_stream = io.BytesIO()
-    plt.savefig(image_stream)
+    plt.savefig(image_stream, format='png')
     plt.close()
-    return image_stream
+    return image_stream.getvalue()  # Devuelve los bytes de la imagen directamente
 
 
 def check_for_url(data):
