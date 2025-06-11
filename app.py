@@ -12,7 +12,7 @@ from math import pi
 import io
 import uuid
 from azure.storage.blob import BlobServiceClient
-
+import base64
 
 # Regular expression to determine if valid URL
 URL_REGEX = re.compile(
