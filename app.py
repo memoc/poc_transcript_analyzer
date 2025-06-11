@@ -103,14 +103,15 @@ def transcript():
             image_name = str(uuid.uuid4())
             blob_service_client = get_blob_service_client_account()
             blob_response = upload_blob_stream(blob_service_client, STORAGE_ACCOUNT_CONTAINER, io.BytesIO(image_bytes), f"{image_name}.png")
+            print("Respuesta de procesamiento")
             print(image_base64)
+            print("Respuesta de blob")
             print(blob_response)
-            print(blob_response.url)
             # Formulate response
             response = {
                 "json_data": json.loads(transcript_results),
-                "chart_bytes": image_base64,
-                "chart_url": blob_response.url,
+                "chart_bytes": str(image_base64),
+                "chart_url": f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{STORAGE_ACCOUNT_CONTAINER}/{image_name}.png",
                 "question_results": json.loads(question_results),
             }
 
