@@ -8,7 +8,7 @@ trigger:
 
 variables:
   # Azure Resource Manager connection created during pipeline creation
-  azureServiceConnectionId: '2d8ce086-29e5-4a63-9749-a043c2e3b29c'
+  azureServiceConnectionId: '824574f9-f80a-4f22-a7df-548a3bd814c1'
 
   # Web app name
   webAppName: 'poc-transcript-analyzer'
