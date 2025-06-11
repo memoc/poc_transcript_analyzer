@@ -103,12 +103,14 @@ def transcript():
             image_name = str(uuid.uuid4())
             blob_service_client = get_blob_service_client_account()
             blob_response = upload_blob_stream(blob_service_client, STORAGE_ACCOUNT_CONTAINER, io.BytesIO(image_bytes), f"{image_name}.png")
-
+            print(image_base64)
+            print(blob_response)
+            print(blob_response.url)
             # Formulate response
             response = {
                 "json_data": json.loads(transcript_results),
                 "chart_bytes": image_base64,
-                "chart_url": blob_response,
+                "chart_url": blob_response.url,
                 "question_results": json.loads(question_results),
             }
 
