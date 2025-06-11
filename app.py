@@ -24,7 +24,7 @@ URL_REGEX = re.compile(
 
 # Initialize Flask app
 load_dotenv()  # take environment variables from .env.
-application = Flask(__name__)
+app = Flask(__name__)
 
 # Load environment variables
 os.environ["API_KEY"] = os.getenv("API_KEY")
@@ -39,7 +39,7 @@ client = AzureOpenAI(
 )
 
 
-@application.route('/transcript', methods=['POST'])
+@app.route('/transcript', methods=['POST'])
 def transcript():
     # Check if 'question' and 'json_file' are present in the request
     question = request.form.get('question')
@@ -54,6 +54,12 @@ def transcript():
             transcript_results = remove_strings(transcript_analyzer_with_questions(question, json_data))
             print(transcript_results)
 
+            # Rate questions
+            question_results = remove_strings(transcript_list_questions_and_grade(question, json_data))
+            # print("QUESTION RESULTS:")
+            # print(question_results)
+
+
             # Write results to file
             with open('data.json', 'w') as f:
                 f.write(transcript_results)
@@ -64,13 +70,15 @@ def transcript():
             # Transform data for plotting
             transformed_metrics = transform_data(input_metrics)
 
+
             # Generate radar chart
             filename = plot_radar_chart(transformed_metrics)
 
             # Formulate response
             response = {
                 "json_data": json.loads(transcript_results),
-                "file_url": filename
+                "file_url": filename,
+                "question_results" : json.loads(question_results)
             }
 
             # Return JSON response
@@ -84,12 +92,12 @@ def transcript():
 
 
 # This endpoint receives only POST requests
-@application.route('/transcript', methods=['GET'])
+@app.route('/transcript', methods=['GET'])
 def transcript_get():
     return "This endpoint receives POST requests"
 
 
-@application.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def root():
     print("Route / is accessed.")
     start_time = time.time()
@@ -118,8 +126,12 @@ def root():
 
         json_data = json.loads(transcript_results)
         print(json_data)
+
+        print("DATA :")
+        print(transformed_metrics)
+
         # Plot radar chart
-        filename = plot_radar_chart(transformed_metrics)
+        filename = plot_radar_chart2(transformed_metrics)
         return render_template("index.html", data=json_data, image=filename, question=question)
 
 
@@ -142,6 +154,74 @@ def transform_data(input_data):
             }
             metrics.append(metric)
     return metrics
+
+
+def plot_radar_chart2(metrics):
+    # Extract categories and values
+    categories = [metric["Metric"] for metric in metrics]
+    values = [metric["Value"] for metric in metrics]
+    N = len(categories)
+
+    # Add newline for categories with more than two words
+    categories = ['\n'.join(category.split()[:2]) + '\n' + ' '.join(category.split()[2:]) if len(
+        category.split()) > 2 else category for category in categories]
+
+    # Specify colors for the line and fill
+    # Purple
+    # line_color = '#8353D2'
+    # fill_color = '#CDBAED'
+
+    # Blue
+    line_color = '#3055DA'
+    fill_color = '#D6DDF8'
+
+    # What will be the angle of each axis in the plot? (we divide the plot / number of variables)
+    angles = [n / float(N) * 2 * pi for n in range(N)]
+    angles += angles[:1]
+
+    # We need values to be a closed loop
+    values += values[:1]
+
+    # Initialise the spider plot
+    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(polar=True))
+
+    # Draw one axe per variable + add labels
+    plt.xticks(angles[:-1], categories, color='black', size=14)
+
+    # Set font size for categories and keep color black
+    for label in ax.get_xticklabels():
+        label.set_color('black')
+        label.set_fontsize(14)
+
+    # Draw y-labels
+    ax.set_rlabel_position(0)
+    plt.yticks([2, 4, 6, 8, 10], ["2", "4", "6", "8", "10"], color="grey", size=10)
+    plt.ylim(0, 10)
+
+    # Plot data with specified line color and fill the area with specified fill color
+    ax.plot(angles, values, linewidth=2, linestyle='solid', color=line_color)
+    ax.fill(angles, values, fill_color, alpha=0.6)
+
+    # Set title with larger font size
+    plt.title(
+        'Candidate Interview - Performance Radar Chart',
+        size=24,
+        color='black',
+        y=1.1
+    )
+
+    # Get current Unix timestamp
+    timestamp = int(time.time())
+
+    # Convert to string and take the last 8 digits
+    file_timestamp = str(timestamp)[-8:]
+
+    filename = 'static/images/radar_chart_' + file_timestamp + '.png'
+    # Save the plot as an image file
+    plt.savefig(filename)
+    plt.close()
+    return filename
+
 
 def plot_radar_chart(metrics):
     # Extract categories and values
@@ -263,6 +343,22 @@ Rate how directly and effectively the candidate's responses addressed the questi
     return query_gpt(message_text, temperature=0, max_tokens=4000)
 
 
+def transcript_list_questions_and_grade(message, json_data ):
+    """Prompt to analyze  ."""
+    message_text = [
+        {"role": "system",
+         "content": """You are an AI specialized in analyzing text transcripts from interviews. Your output will be a JSON file named : questions.json, with following categories: [Question, Comment, Score] """},
+        {"role": "user",
+         "content": """List all questions asked on this interview transcript and rate 'from 1 (poor) to 10 (excellent)' and comment each question based on this interview transcript : """ + message + """ use this JSON that contains the list of questions asked and the proposed answer, you should only rate answers from the interview transcript. """ + json_data}
+
+    ]
+    return query_gpt(message_text, temperature=0, max_tokens=4000)
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    application.run(debug=True, port=5001)
+    app.run(debug=True, port=5001)
