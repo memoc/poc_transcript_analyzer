@@ -242,9 +242,9 @@ def plot_radar_chart2(metrics):
     ax.fill(angles, values, fill_color, alpha=0.6)
 
     # Set title with larger font size
-    plt.title(
-        "Candidate Interview - Performance Radar Chart", size=24, color="black", y=1.1
-    )
+    # plt.title(
+    #     "Candidate Interview - Performance Radar Chart", size=24, color="black", y=1.1
+    # )
 
     # Get current Unix timestamp
     timestamp = int(time.time())
@@ -289,9 +289,9 @@ def plot_radar_chart(metrics):
     # Fill area
     ax.fill(angles, values, "b", alpha=0.1)
 
-    plt.title(
-        "Candidate Interview - Performance Radar Chart", size=18, color="black", y=1.1
-    )
+    # plt.title(
+    #     "Candidate Interview - Performance Radar Chart", size=18, color="black", y=1.1
+    # )
 
     # Save the plot as PNG bytes
     image_stream = io.BytesIO()
