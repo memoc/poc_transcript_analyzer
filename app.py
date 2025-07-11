@@ -66,61 +66,69 @@ def transcript():
     question = request.form.get("question")
     json_file = request.files.get("json_file")
 
+
+
     if question and json_file:
         try:
 
             # Read and decode JSON data
             json_data = json_file.read().decode("utf-8")
 
-            # Process transcripts
-            transcript_results = remove_strings(
-                transcript_analyzer_with_questions(question, json_data)
-            )
-            print(transcript_results)
+            #Validate if transcript is related to a Job interview
+            validTranscript = {"TRUE": True, "FALSE": False}.get(isValidInterviewTranscript(question).upper(), None)
+            if validTranscript:
+                print("✅ Valid job interview transcript")
 
-            # Rate questions
-            question_results = remove_strings(
-                transcript_list_questions_and_grade(question, json_data)
-            )
-            # print("QUESTION RESULTS:")
-            # print(question_results)
+                # Process transcripts
+                transcript_results = remove_strings(transcript_analyzer_with_questions(question, json_data))
+                print("✅ Analized job interview transcript")
 
-            # Write results to file
-            with open("data.json", "w") as f:
-                f.write(transcript_results)
+                # Rate questions
+                question_results = remove_strings(transcript_list_questions_and_grade(question, json_data))
+                print("✅ Analized and rated responses based on questions asked")
 
-            # Read data from JSON file
-            input_metrics = read_json("data.json")
 
-            # Transform data for plotting
-            transformed_metrics = transform_data(input_metrics)
+                # Write results to file
+                with open("data.json", "w") as f:
+                    f.write(transcript_results)
+                print("✅ Exported results to JSON file")
 
-            # Generate radar chart
-            image_bytes = plot_radar_chart(transformed_metrics)
-            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+                # Read data from JSON file
+                input_metrics = read_json("data.json")
 
-            # Upload file to Azure Blob Storage 
-            image_name = str(uuid.uuid4())
-            blob_service_client = get_blob_service_client_account()
-            blob_response = upload_blob_stream(blob_service_client, STORAGE_ACCOUNT_CONTAINER, io.BytesIO(image_bytes), f"{image_name}.png")
-            print("Respuesta de procesamiento")
-            print(image_base64)
-            print("Respuesta de blob")
-            print(blob_response)
-            # Formulate response
-            response = {
-                "json_data": json.loads(transcript_results),
-                "chart_bytes": str(image_base64),
-                "chart_url": f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{STORAGE_ACCOUNT_CONTAINER}/{image_name}.png",
-                "question_results": json.loads(question_results),
-            }
+                # Transform data for plotting
+                transformed_metrics = transform_data(input_metrics)
 
-            # Return JSON response
-            return jsonify(response)
+                # Generate radar chart
+                image_bytes = plot_radar_chart(transformed_metrics)
+                image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+                print("✅ Generated radar chart")
+
+                # Upload file to Azure Blob Storage
+                image_name = str(uuid.uuid4())
+                blob_service_client = get_blob_service_client_account()
+                blob_response = upload_blob_stream(blob_service_client, STORAGE_ACCOUNT_CONTAINER, io.BytesIO(image_bytes), f"{image_name}.png")
+                #print("Respuesta de procesamiento")
+                #print(image_base64)
+                #print("Respuesta de blob")
+                #print(blob_response)
+                # Formulate response
+                response = {
+                    "json_data": json.loads(transcript_results),
+                    #"chart_bytes": str(image_base64),
+                    "chart_url": f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{STORAGE_ACCOUNT_CONTAINER}/{image_name}.png",
+                    "question_results": json.loads(question_results),
+                }
+
+                # Return JSON response
+                return jsonify(response)
+            else:
+                # If Not valid transcript
+                print("❌ Invalid text or does not contain a valid job interview transcript")
+                return "Error: 'Invalid text or does not contain a valid job interview transcript.", 400
 
         except Exception as e:
             return f"Error processing request: {str(e)}", 500
-
     # If necessary parameters are missing, return an error message
     return "Error: 'question' and 'json_file' are required.", 400
 
@@ -254,7 +262,7 @@ def plot_radar_chart2(metrics):
 
     filename = "static/images/radar_chart_" + file_timestamp + ".png"
     # Save the plot as an image file
-    plt.savefig(filename)
+    plt.savefig(filename, format='png', transparent=True)
     plt.close()
     return filename
 
@@ -295,7 +303,7 @@ def plot_radar_chart(metrics):
 
     # Save the plot as PNG bytes
     image_stream = io.BytesIO()
-    plt.savefig(image_stream, format='png')
+    plt.savefig(image_stream, format='png', transparent=True)
     plt.close()
     return image_stream.getvalue()  # Devuelve los bytes de la imagen directamente
 
@@ -330,14 +338,14 @@ def remove_strings(text):
     return cleaned_text
 
 
-def query_gpt(message_text, temperature=0.8, max_tokens=800):
+def query_gpt(message_text, temperature=1, max_tokens=8000):
     """Query GPT-3 with the given message text and return the response."""
     completion = client.chat.completions.create(
         model=model,
         messages=message_text,
         temperature=temperature,
         max_tokens=max_tokens,
-        top_p=0.95,
+        top_p=1,
         frequency_penalty=0,
         presence_penalty=0,
         stop=None,
@@ -386,6 +394,22 @@ Rate how directly and effectively the candidate's responses addressed the questi
     return query_gpt(message_text, temperature=0, max_tokens=4000)
 
 
+
+
+def isValidInterviewTranscript(message):
+    #"""Validate if transcript is from a Job Interview"""
+    message_text = [
+            {
+            "role": "system",
+            "content": """You are an expert transcript job interview assistant. Your task is to analyze transcripts and return TRUE only if the transcript is related to a job interview. If the transcript is related to any other type of conversation, such as process-related interviews, assessments, or any other topic not specific to a job interview, you must return FALSE. Provide only TRUE or FALSE as the output, without any additional explanation or commentary."""
+            },
+            {
+            "role": "user",
+            "content": message
+            }
+    ]
+    return query_gpt(message_text, temperature=0, max_tokens=4000)
+
 def transcript_list_questions_and_grade(message, json_data):
     """Prompt to analyze  ."""
     message_text = [
@@ -397,7 +421,7 @@ def transcript_list_questions_and_grade(message, json_data):
             "role": "user",
             "content": """List all questions asked on this interview transcript and rate 'from 1 (poor) to 10 (excellent)' and comment each question based on this interview transcript : """
             + message
-            + """ use this JSON that contains the list of questions asked and the proposed answer, you should only rate answers from the interview transcript. """
+            + """ use this JSON that contains the list of questions asked and the proposed answer, you should only rate answers from the interview transcript. Also if one of the below questions are not asked on the transcript, then your outcome will be [Question, 'Question not asked in transcript', N/A], you need to analyze all asked questions and use the proposed answer.  """
             + json_data,
         },
     ]
