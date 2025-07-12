@@ -115,7 +115,7 @@ def transcript():
                 # Formulate response
                 response = {
                     "json_data": json.loads(transcript_results),
-                    #"chart_bytes": str(image_base64),
+                    "chart_bytes": str(image_base64),
                     "chart_url": f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{STORAGE_ACCOUNT_CONTAINER}/{image_name}.png",
                     "question_results": json.loads(question_results),
                 }
